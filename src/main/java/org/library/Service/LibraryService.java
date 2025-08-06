@@ -1,11 +1,7 @@
 package org.library.Service;
 
-package com.library.demo.service;
-
-import com.library.demo.model.Author;
-import com.library.demo.model.Book;
-import com.library.demo.model.Issue;
-import com.library.demo.model.Student;
+import org.library.model.*;
+import org.library.repository.*;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -14,100 +10,94 @@ import java.util.stream.Collectors;
 
 public class LibraryService {
 
-    // Repositorios en memoria
-    private final List<Book> books = new ArrayList<>();
-    private final List<Author> authors = new ArrayList<>();
-    private final List<Student> students = new ArrayList<>();
-    private final List<Issue> issues = new ArrayList<>();
+    private final BookRepository bookRepository = new BookRepository();
+    private final AuthorRepository authorRepository = new AuthorRepository();
+//    private final StudentRepository studentRepository = new StudentRepository();
+//    private final IssueRepository issueRepository = new IssueRepository();
 
     private int issueIdCounter = 1;
 
-    // 1. Añadir libro y su autor
-    public void addBookWithAuthor(
-            String isbn,
-            String title,
-            String category,
-            int quantity,
-            String authorName,
-            String authorEmail) {
-
+    // 1. Add book with author
+    public void addBookWithAuthor(String isbn, String title, String category, int quantity, String authorName, String authorEmail) {
         Book book = new Book(isbn, title, category, quantity);
-        books.add(book);
+        bookRepository.save(book);
 
-        Author author = new Author(0, authorName, authorEmail, book);
-        authors.add(author);
+        List<Author> authors = authorRepository.findAll(bookRepository.toMap());
+        boolean exists = authors.stream().anyMatch(a ->
+                a.getName().equalsIgnoreCase(authorName)
+                        && a.getEmail().equalsIgnoreCase(authorEmail)
+                        && a.getAuthorBook().getIsbn().equalsIgnoreCase(isbn)
+        );
+
+        if (!exists) {
+            Author author = new Author(authorName, authorEmail, book);
+            authorRepository.save(author);
+        }
     }
 
-    // 2. Buscar libro por título
+    // 2. Search books by title
     public List<Book> searchBookByTitle(String title) {
-        return books.stream()
+        return bookRepository.findAll().stream()
                 .filter(book -> book.getTitle().equalsIgnoreCase(title))
                 .collect(Collectors.toList());
     }
 
-    // 3. Buscar libro por categoría
+    // 3. Search books by category
     public List<Book> searchBookByCategory(String category) {
-        return books.stream()
+        return bookRepository.findAll().stream()
                 .filter(book -> book.getCategory().equalsIgnoreCase(category))
                 .collect(Collectors.toList());
     }
 
-    // 4. Buscar libro por autor
+    // 4. Search books by author
     public List<Author> searchBookByAuthor(String authorName) {
-        return authors.stream()
+        return authorRepository.findAll(bookRepository.toMap()).stream()
                 .filter(author -> author.getName().equalsIgnoreCase(authorName))
                 .collect(Collectors.toList());
     }
 
-    // 5. Lista de todos los libros con autores
+    // 5. List all books with authors
     public List<Author> listAllBooksWithAuthors() {
-        return new ArrayList<>(authors);
+        return authorRepository.findAll(bookRepository.toMap());
     }
 
-    // 6. Emitir libro a estudiante
-    public String issueBook(String usn, String studentName, String isbn) {
-        Book book = books.stream()
-                .filter(b -> b.getIsbn().equals(isbn))
-                .findFirst()
-                .orElse(null);
-
-        if (book == null || book.getQuantity() <= 0) {
-            return "Book not available";
-        }
-
-        // Verificar si el estudiante ya existe
-        Student student = students.stream()
-                .filter(s -> s.getUsn().equals(usn))
-                .findFirst()
-                .orElseGet(() -> {
-                    Student newStudent = new Student(usn, studentName);
-                    students.add(newStudent);
-                    return newStudent;
-                });
-
-        LocalDateTime issueDate = LocalDateTime.now();
-        LocalDateTime returnDate = issueDate.plusDays(7);
-
-        Issue issue = new Issue();
-        issue.setIssueId(issueIdCounter++);
-        issue.setIssueDate(issueDate.toString());
-        issue.setReturnDate(returnDate.toString());
-        issue.setIssueStudent(student);
-        issue.setIssueBook(book);
-
-        issues.add(issue);
-
-        // Actualizar cantidad del libro
-        book.setQuantity(book.getQuantity() - 1);
-
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEE MMM dd HH:mm:ss yyyy");
-        return "Book issued. Return date: " + returnDate.format(formatter);
-    }
-
-    // 7. Lista de libros por USN
-    public List<Issue> listBooksByUsn(String usn) {
-        return issues.stream()
-                .filter(issue -> issue.getIssueStudent().getUsn().equals(usn))
-                .collect(Collectors.toList());
-    }
+    // 6. Issue book to student
+//    public String issueBook(String usn, String studentName, String isbn) {
+//        Book book = bookRepository.findByIsbn(isbn);
+//
+//        if (book == null || book.getQuantity() <= 0) {
+//            return "Book not available";
+//        }
+//
+//        Student student = studentRepository.findByUsn(usn);
+//        if (student == null) {
+//            student = new Student(usn, studentName);
+//            studentRepository.save(student);
+//        }
+//
+//        LocalDateTime issueDate = LocalDateTime.now();
+//        LocalDateTime returnDate = issueDate.plusDays(7);
+//
+//        Issue issue = new Issue();
+//        issue.setIssueId(issueIdCounter++);
+//        issue.setIssueDate(issueDate.toString());
+//        issue.setReturnDate(returnDate.toString());
+//        issue.setIssueStudent(student);
+//        issue.setIssueBook(book);
+//
+//        issueRepository.save(issue);
+//
+//        book.setQuantity(book.getQuantity() - 1);
+//        bookRepository.update(book);
+//
+//        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+//        return "Book issued. Return date: " + returnDate.format(formatter);
+//    }
+//
+//    // 7. List books issued by student USN
+//    public List<Issue> listBooksByUsn(String usn) {
+//        return issueRepository.findAll(studentRepository.toMap(), bookRepository.toMap()).stream()
+//                .filter(issue -> issue.getIssueStudent().getUsn().equals(usn))
+//                .collect(Collectors.toList());
+//    }
 }
