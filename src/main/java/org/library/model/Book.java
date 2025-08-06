@@ -7,11 +7,11 @@ public class Book {
     private String category;
     private int quantity;
 
-    // Constructor vacío
+    // No-args constructor
     public Book() {
     }
 
-    // Constructor con todos los campos
+    // All-args constructor
     public Book(String isbn, String title, String category, int quantity) {
         this.isbn = isbn;
         this.title = title;
@@ -50,10 +50,11 @@ public class Book {
     }
 
     public void setQuantity(int quantity) {
+        if (quantity < 0) {
+            throw new IllegalArgumentException("Quantity cannot be negative");
+        }
         this.quantity = quantity;
     }
-
-    // toString()
 
     @Override
     public String toString() {
