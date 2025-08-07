@@ -1,68 +1,45 @@
 package org.library.model;
-
-import org.junit.jupiter.api.*;
-import org.library.repository.AuthorRepository;
-import org.library.repository.BookRepository;
-
-import java.io.File;
-import java.util.List;
+import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class AuthorTest {
 
-    private static final String AUTHORS_CSV = "authors.csv";
-    private static final String BOOKS_CSV = "books.csv";
+    @Test
+    void testAuthorCreationWithValidData() {
+        Book book = new Book("123-ABC", "Test Book", "Fiction", 3);
+        Author author = new Author("Jane Doe", "jane@example.com", book);
 
-    private AuthorRepository authorRepository;
-    private BookRepository bookRepository;
-
-    @BeforeEach
-    void setup() {
-        // Limpia los archivos antes de cada prueba
-        new File(AUTHORS_CSV).delete();
-        new File(BOOKS_CSV).delete();
-
-        authorRepository = new AuthorRepository();
-        bookRepository = new BookRepository();
+        assertEquals("Jane Doe", author.getName());
+        assertEquals("jane@example.com", author.getEmail());
+        assertEquals(book, author.getAuthorBook());
+        assertTrue(author.getAuthorId() > 0);
     }
 
     @Test
-    void testSaveAndFindAll() {
-        Book book = new Book("123-A", "Clean Code", "Programming", 5);
-        bookRepository.save(book);
+    void testSetAndGetFields() {
+        Book book = new Book("456-DEF", "Another Book", "Mystery", 2);
+        Author author = new Author();
 
-        Author author = new Author(1, "Robert C. Martin", "unclebob@mail.com", book);
-        authorRepository.save(author);
+        author.setAuthorId(10);
+        author.setName("John Smith");
+        author.setEmail("john@example.com");
+        author.setAuthorBook(book);
 
-        List<Author> authors = authorRepository.findAll();
-        assertEquals(1, authors.size());
-        assertEquals("Robert C. Martin", authors.get(0).getName());
+        assertEquals(10, author.getAuthorId());
+        assertEquals("John Smith", author.getName());
+        assertEquals("john@example.com", author.getEmail());
+        assertEquals(book, author.getAuthorBook());
     }
 
     @Test
-    void testFindByNameIgnoreCase() {
-        Book book = new Book("456-B", "Refactoring", "Programming", 3);
-        bookRepository.save(book);
+    void testToStringFormat() {
+        Book book = new Book("789-GHI", "Debugging Java", "Tech", 1);
+        Author author = new Author("Alice", "alice@mail.com", book);
+        String output = author.toString();
 
-        Author author = new Author(2, "Martin Fowler", "mfowler@mail.com", book);
-        authorRepository.save(author);
-
-        List<Author> result = authorRepository.findByName("martin fowler");
-        assertEquals(1, result.size());
-        assertEquals("Martin Fowler", result.get(0).getName());
-    }
-
-    @Test
-    void testFindByBookIsbn() {
-        Book book = new Book("789-C", "The Pragmatic Programmer", "Programming", 4);
-        bookRepository.save(book);
-
-        Author author = new Author(3, "Andy Hunt", "andy@mail.com", book);
-        authorRepository.save(author);
-
-        Author found = authorRepository.findByBookIsbn("789-C");
-        assertNotNull(found);
-        assertEquals("Andy Hunt", found.getName());
+        assertTrue(output.contains("Alice"));
+        assertTrue(output.contains("alice@mail.com"));
+        assertTrue(output.contains("Debugging Java"));
     }
 }
