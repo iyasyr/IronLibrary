@@ -9,8 +9,19 @@ import java.util.*;
 
 public class IssueRepository {
 
+    private String filePath;
     private static final String FILE_PATH = "issues.csv";
     private static int nextId = 1;
+
+    //Constructor por defecto
+    public IssueRepository() {
+        this.filePath = FILE_PATH;
+    }
+
+    // Constructor para pruebas
+    public IssueRepository(String filePath) {
+        this.filePath = filePath;
+    }
 
     // Guardar un issue
     public void save(Issue issue) {
