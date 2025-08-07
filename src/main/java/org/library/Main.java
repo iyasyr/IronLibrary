@@ -50,7 +50,12 @@ public class Main {
                     if (books.isEmpty()) {
                         System.out.println("❌ No books found.");
                     } else {
-                        books.forEach(System.out::println);
+                        System.out.printf("%-25s%-20s%-15s%s\n", "Book ISBN", "Book Title", "Category", "No of Books");
+                        books.forEach(book -> System.out.printf("%-25s%-20s%-15s%s\n",
+                                book.getIsbn(),
+                                book.getTitle(),
+                                book.getCategory(),
+                                book.getQuantity()));
                     }
                 }
 
@@ -61,7 +66,12 @@ public class Main {
                     if (books.isEmpty()) {
                         System.out.println("❌ No books found.");
                     } else {
-                        books.forEach(System.out::println);
+                        System.out.printf("%-25s%-20s%-15s%s\n", "Book ISBN", "Book Title", "Category", "No of Books");
+                        books.forEach(book -> System.out.printf("%-25s%-20s%-15s%s\n",
+                                book.getIsbn(),
+                                book.getTitle(),
+                                book.getCategory(),
+                                book.getQuantity()));
                     }
                 }
 
