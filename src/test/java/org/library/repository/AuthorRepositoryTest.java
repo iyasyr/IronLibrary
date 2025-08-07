@@ -1,117 +1,78 @@
 package org.library.repository;
 
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.library.model.Author;
 import org.library.model.Book;
 
-import java.io.*;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
 
-public class AuthorRepositoryTest {
+import static org.junit.jupiter.api.Assertions.*;
 
-    private static final String DEFAULT_FILE_PATH = "authors.csv";
-    private final String filePath;
+class AuthorRepositoryTest {
 
-    private final BookRepository bookRepository;
+    @TempDir
+    File tempDir;
 
-    // Constructor por defecto usa archivo de producción
-    public AuthorRepository() {
-        this(DEFAULT_FILE_PATH);
+    private File testFile;
+    private AuthorRepository authorRepository;
+
+    @BeforeEach
+    void setUp() {
+        testFile = new File(tempDir, "test_authors.csv");
+        // Asegúrate de pasar la ruta del archivo temporal
+        authorRepository = new AuthorRepository(testFile.getAbsolutePath());
     }
 
-    // Constructor personalizado (para pruebas o rutas distintas)
-    public AuthorRepository(String filePath) {
-        this.filePath = filePath;
-        this.bookRepository = new BookRepository(); // usa el repositorio de libros para cargar info relacionada
+    @Test
+    void testSaveAndFindAll() {
+        Book book = new Book("123", "Test Book", "Fiction", 2);
+        Author author = new Author("John Doe", "john@example.com", book);
+        author.setAuthorId(1);
+
+        // También setea el author en el libro si tienes bidirección
+        book.setAuthor(author);
+
+        authorRepository.save(author);
+
+        List<Author> allAuthors = authorRepository.findAll();
+        assertEquals(1, allAuthors.size());
+
+        Author retrieved = allAuthors.get(0);
+        assertEquals("John Doe", retrieved.getName());
+        assertEquals("john@example.com", retrieved.getEmail());
+        assertEquals("123", retrieved.getAuthorBook().getIsbn());
     }
 
-    // Guardar un autor
-    public void save(Author author) {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath, true))) {
-            writer.write(toCsvLine(author));
-            writer.newLine();
-        } catch (IOException e) {
-            throw new RuntimeException("Error saving author", e);
-        }
+    @Test
+    void testFindByName() {
+        Author author1 = new Author("Alice", "alice@mail.com", new Book("A1", "Alpha", "SciFi", 1));
+        Author author2 = new Author("Bob", "bob@mail.com", new Book("B2", "Beta", "Drama", 2));
+        author1.setAuthorId(1);
+        author2.setAuthorId(2);
+
+        authorRepository.save(author1);
+        authorRepository.save(author2);
+
+        List<Author> result = authorRepository.findByName("alice");
+        assertEquals(1, result.size());
+        assertEquals("Alice", result.get(0).getName());
     }
 
-    // Obtener todos los autores
-    public List<Author> findAll() {
-        List<Author> authors = new ArrayList<>();
-        Map<String, Book> bookMap = bookRepository.toMap();
+    @Test
+    void testFindByBookIsbn() {
+        Book book = new Book("999", "Gamma", "Action", 3);
+        Author author = new Author("Charlie", "charlie@mail.com", book);
+        author.setAuthorId(1);
+        book.setAuthor(author);
 
-        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                authors.add(fromCsvLine(line, bookMap));
-            }
-        } catch (FileNotFoundException e) {
-            // archivo aún no existe
-        } catch (IOException e) {
-            throw new RuntimeException("Error reading authors", e);
-        }
+        authorRepository.save(author);
 
-        return authors;
-    }
-
-    // Buscar por nombre (ignora mayúsculas/minúsculas)
-    public List<Author> findByName(String name) {
-        return findAll().stream()
-                .filter(a -> a.getName().equalsIgnoreCase(name))
-                .collect(Collectors.toList());
-    }
-
-    // Buscar por ISBN del libro
-    public Author findByBookIsbn(String isbn) {
-        return findAll().stream()
-                .filter(a -> a.getAuthorBook() != null &&
-                        isbn.equalsIgnoreCase(a.getAuthorBook().getIsbn()))
-                .findFirst()
-                .orElse(null);
-    }
-
-    // Convertir a línea CSV
-    private String toCsvLine(Author author) {
-        return String.join(",",
-                String.valueOf(author.getAuthorId()),
-                escape(author.getName()),
-                escape(author.getEmail()),
-                escape(author.getAuthorBook() != null ? author.getAuthorBook().getIsbn() : "")
-        );
-    }
-
-    // Convertir línea CSV a Author
-    private Author fromCsvLine(String line, Map<String, Book> bookMap) {
-        String[] parts = line.split(",", -1);
-        int id = Integer.parseInt(parts[0]);
-        String name = unescape(parts[1]);
-        String email = unescape(parts[2]);
-        String isbn = unescape(parts[3]);
-
-        Book book = bookMap.getOrDefault(isbn, null);
-
-        Author author = new Author(name, email, book);
-        author.setAuthorId(id);
-        return author;
-    }
-
-    // Crear mapa ISBN → Book
-    public Map<Integer, Author> toMap() {
-        return findAll().stream()
-                .collect(Collectors.toMap(
-                        Author::getAuthorId,
-                        a -> a,
-                        (existing, replacement) -> existing
-                ));
-    }
-
-    // Escapar comas
-    private String escape(String s) {
-        return s == null ? "" : s.replace(",", "\\,");
-    }
-
-    // Des-escapar comas
-    private String unescape(String s) {
-        return s.replace("\\,", ",");
+        Author found = authorRepository.findByBookIsbn("999");
+        assertNotNull(found);
+        assertEquals("Charlie", found.getName());
     }
 }
