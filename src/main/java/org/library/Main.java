@@ -82,7 +82,9 @@ public class Main {
                     if (authors.isEmpty()) {
                         System.out.println("❌ No authors found.");
                     } else {
-                        authors.forEach(System.out::println);
+                        System.out.printf("%-25s%-20s%-15s%s\n", "Book ISBN", "Book Title", "Category", "No of Books");
+
+
                     }
                 }
 
