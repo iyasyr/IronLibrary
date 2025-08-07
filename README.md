@@ -2,6 +2,8 @@
 
 **IronLibrary** es un sistema de gestión de biblioteca desarrollado en **Java**, diseñado para facilitar la administración de libros y préstamos a estudiantes dentro de un entorno académico.
 
+
+
 ## 🧩 Arquitectura del Proyecto
 
 El sistema se organiza en las siguientes clases y paquetes:
@@ -12,6 +14,8 @@ El sistema se organiza en las siguientes clases y paquetes:
 - `Issue`: Registra un préstamo de libro, incluyendo fechas y referencias al estudiante y libro involucrados.
 - **Repositorios**: Clases como `BookRepository`, `IssueRepository`, etc., se encargan de la persistencia de datos en archivos CSV.
 - **Pruebas**: Tests unitarios realizados con JUnit 5 para asegurar la correcta funcionalidad del sistema.
+
+
 
 ## 🚀 Funcionalidades principales
 
@@ -26,6 +30,8 @@ El sistema permite:
 7. 📖 Listar libros emitidos por USN del estudiante
 8. ❌ Salir del sistema
 
+
+
 ## 🛠️ Tecnologías utilizadas
 
 - Java 17
@@ -33,7 +39,11 @@ El sistema permite:
 - JUnit 5
 - Git
 
+
+
 ## 📁 Estructura del Proyecto
+
+El proyecto está organizado en varios paquetes para mejorar su mantenibilidad y legibilidad. Aquí tienes un esquema de la estructura de carpetas:
 
 ```
 src/
@@ -73,7 +83,8 @@ src/
 └── pom.xml
 ```
 
----
+
+
 
 ## 📖 ¿Cómo ejecutar?
 
