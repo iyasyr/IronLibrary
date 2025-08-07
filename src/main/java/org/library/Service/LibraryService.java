@@ -8,6 +8,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static java.util.stream.Collectors.toMap;
+
 public class LibraryService {
 
     private final BookRepository bookRepository = new BookRepository();
@@ -15,7 +17,10 @@ public class LibraryService {
     private final StudentRepository studentRepository = new StudentRepository();
     private final IssueRepository issueRepository = new IssueRepository();
 
+
     private int issueIdCounter = 1;
+
+
 
     // 1. Add book with author
     public void addBookWithAuthor(String isbn, String title, String category, int quantity, String authorName, String authorEmail) {
@@ -62,36 +67,29 @@ public class LibraryService {
     }
 
     // 6. Issue book to student
-    public String issueBook(String usn, String studentName, String isbn) {
+    public Issue issueBook(String usn, String studentName, String isbn) {
         Book book = bookRepository.findByIsbn(isbn);
-
         if (book == null || book.getQuantity() <= 0) {
-            return "Book not available";
+            return null;  // or throw a custom exception
         }
-
         Student student = studentRepository.findByUsn(usn);
         if (student == null) {
             student = new Student(usn, studentName);
             studentRepository.save(student);
         }
-
         LocalDateTime issueDate = LocalDateTime.now();
         LocalDateTime returnDate = issueDate.plusDays(7);
-
         Issue issue = new Issue();
         issue.setIssueId(issueIdCounter++);
         issue.setIssueDate(issueDate.toString());
         issue.setReturnDate(returnDate.toString());
         issue.setIssueStudent(student);
         issue.setIssueBook(book);
-
         issueRepository.save(issue);
-
         book.setQuantity(book.getQuantity() - 1);
         bookRepository.update(book);
+        return issue;
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        return "Book issued. Return date: " + returnDate.format(formatter);
     }
 
     // 7. List books issued by student USN

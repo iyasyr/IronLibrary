@@ -2,14 +2,25 @@ package org.library.model;
 
 public class Book {
 
+
     private String isbn;
     private String title;
     private String category;
     private int quantity;
 
-    // No-args constructor
-    public Book() {
+    // Agrega el atributo Author
+
+
+    public Book(String isbn, String title, String category, int quantity, Author author) {
+        this.isbn = isbn;
+        this.title = title;
+        this.category = category;
+        this.quantity = quantity;
+
     }
+
+
+
 
     // All-args constructor
     public Book(String isbn, String title, String category, int quantity) {
@@ -17,7 +28,10 @@ public class Book {
         this.title = title;
         this.category = category;
         this.quantity = quantity;
+
     }
+    
+
 
     // Getters y Setters
 
