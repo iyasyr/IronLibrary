@@ -9,15 +9,26 @@ import java.util.*;
 
 public class IssueRepository {
 
-    private static final String FILE_PATH = "issues.csv";
+    private static final String DEFAULT_FILE_PATH = "issues.csv";
+    private final String filePath;
     private static int nextId = 1;
+
+    // Default constructor (used in production)
+    public IssueRepository() {
+        this.filePath = DEFAULT_FILE_PATH;
+    }
+
+    // Constructor for tests (or custom paths)
+    public IssueRepository(String filePath) {
+        this.filePath = filePath;
+    }
 
     // Save a new Issue
     public void save(Issue issue) {
         validateIssue(issue);
-
         issue.setIssueId(nextId++);
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_PATH, true))) {
+
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath, true))) {
             writer.write(String.format("%d,%s,%s,%s,%s",
                     issue.getIssueId(),
                     escape(issue.getIssueDate()),
@@ -34,7 +45,7 @@ public class IssueRepository {
     // Load all Issues
     public List<Issue> findAll(Map<String, Student> studentMap, Map<String, Book> bookMap) {
         List<Issue> issues = new ArrayList<>();
-        try (BufferedReader reader = new BufferedReader(new FileReader(FILE_PATH))) {
+        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
             String line;
             while ((line = reader.readLine()) != null) {
                 String[] parts = line.split(",", -1);
@@ -101,12 +112,10 @@ public class IssueRepository {
         }
     }
 
-    // Escape commas
     private String escape(String s) {
         return s == null ? "" : s.replace(",", "\\,");
     }
 
-    // Unescape commas
     private String unescape(String s) {
         return s.replace("\\,", ",");
     }

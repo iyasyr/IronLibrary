@@ -11,6 +11,10 @@ public class Student {
         setName(name);
     }
 
+    public Student() {
+
+    }
+
     // Getters and Setters
 
     public String getUsn() {

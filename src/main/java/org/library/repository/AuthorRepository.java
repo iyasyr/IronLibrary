@@ -8,8 +8,20 @@ import java.util.*;
 
 public class AuthorRepository {
 
-    private static final String FILE_PATH = "authors.csv";
+    private static final String DEFAULT_FILE_PATH = "authors.csv";
+    private final String filePath;
     private static int nextId = 1;
+
+    // Default constructor for production use
+    public AuthorRepository() {
+        this.filePath = DEFAULT_FILE_PATH;
+    }
+
+    // Constructor for testing or custom file use
+    public AuthorRepository(String filePath) {
+        this.filePath = filePath;
+    }
+
 
     // Save a new author
     public void save(Author author, Map<String, Book> bookMap) {
@@ -23,7 +35,7 @@ public class AuthorRepository {
         }
 
         author.setAuthorId(nextId++); // autoincremented value
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_PATH, true))) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath, true))) {
             writer.write(String.format("%d,%s,%s,%s",
                     author.getAuthorId(),
                     escape(author.getName()),
@@ -39,7 +51,7 @@ public class AuthorRepository {
     // Load all authors (requires map of ISBN -> Book for linking)
     public List<Author> findAll(Map<String, Book> bookMap) {
         List<Author> authors = new ArrayList<>();
-        try (BufferedReader reader = new BufferedReader(new FileReader(FILE_PATH))) {
+        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
             String line;
             while ((line = reader.readLine()) != null) {
                 String[] parts = line.split(",", -1);

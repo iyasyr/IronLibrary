@@ -20,6 +20,10 @@ public class Author {
         setAuthorBook(authorBook);
     }
 
+    public Author() {
+
+    }
+
     // Getters
     public int getAuthorId() {
         return authorId;

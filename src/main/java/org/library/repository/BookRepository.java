@@ -9,7 +9,18 @@ import java.util.stream.Collectors;
 
 public class BookRepository {
 
-    private static final String FILE_PATH = "books.csv";
+    private static final String DEFAULT_FILE_PATH = "books.csv";
+    private final String filePath;
+
+    // Default constructor (production)
+    public BookRepository() {
+        this.filePath = DEFAULT_FILE_PATH;
+    }
+
+    // Constructor with custom file path (for testing)
+    public BookRepository(String filePath) {
+        this.filePath = filePath;
+    }
 
     private void checkIsbnUniqueness(String isbn) {
         String normalized = IsbnUtil.normalize(isbn);
@@ -22,14 +33,13 @@ public class BookRepository {
         }
     }
 
-
     // Save a book (append mode)
     public void save(Book book) {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_PATH, true))) {
-            IsbnUtil.validate(book.getIsbn());              // Check format
-            checkIsbnUniqueness(book.getIsbn());            // Prevent duplicates
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath, true))) {
+            IsbnUtil.validate(book.getIsbn());
+            checkIsbnUniqueness(book.getIsbn());
 
-            book.setIsbn(IsbnUtil.normalize(book.getIsbn())); // Normalize before saving
+            book.setIsbn(IsbnUtil.normalize(book.getIsbn()));
             writer.write(toCsvLine(book));
             writer.newLine();
         } catch (IOException e) {
@@ -40,7 +50,7 @@ public class BookRepository {
     // Return all books
     public List<Book> findAll() {
         List<Book> books = new ArrayList<>();
-        try (BufferedReader reader = new BufferedReader(new FileReader(FILE_PATH))) {
+        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
             String line;
             while ((line = reader.readLine()) != null) {
                 books.add(fromCsvLine(line));
@@ -68,7 +78,7 @@ public class BookRepository {
                 .map(b -> b.getIsbn().equalsIgnoreCase(updatedBook.getIsbn()) ? updatedBook : b)
                 .toList();
 
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_PATH))) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath))) {
             for (Book book : updatedList) {
                 writer.write(toCsvLine(book));
                 writer.newLine();
@@ -78,23 +88,20 @@ public class BookRepository {
         }
     }
 
-    // Create a map of ISBN -> Book (used by AuthorRepository)
+    // Create a map of ISBN -> Book
     public Map<String, Book> toMap() {
         return findAll().stream()
                 .collect(Collectors.toMap(Book::getIsbn, book -> book));
     }
 
-    // Helper: Convert book to CSV line
     private String toCsvLine(Book book) {
         return String.join(",",
                 escape(book.getIsbn()),
                 escape(book.getTitle()),
                 escape(book.getCategory()),
-                String.valueOf(book.getQuantity())
-        );
+                String.valueOf(book.getQuantity()));
     }
 
-    // Helper: Parse CSV line into Book
     private Book fromCsvLine(String line) {
         String[] parts = line.split(",", -1);
         return new Book(
@@ -105,7 +112,6 @@ public class BookRepository {
         );
     }
 
-    // CSV escaping
     private String escape(String s) {
         return s == null ? "" : s.replace(",", "\\,");
     }

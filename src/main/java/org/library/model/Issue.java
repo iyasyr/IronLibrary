@@ -18,6 +18,10 @@ public class Issue {
         setIssueBook(issueBook);
     }
 
+    public Issue() {
+
+    }
+
     public int getIssueId() {
         return issueId;
     }
