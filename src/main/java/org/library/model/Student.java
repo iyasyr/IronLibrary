@@ -5,17 +5,13 @@ public class Student {
     private String usn;
     private String name;
 
-    // Constructor vacío
-    public Student() {
-    }
-
-    // Constructor con todos los campos
+    // All-args constructor
     public Student(String usn, String name) {
         setUsn(usn);
         setName(name);
     }
 
-    // Getters y Setters
+    // Getters and Setters
 
     public String getUsn() {
         return usn;
@@ -23,9 +19,16 @@ public class Student {
 
     public void setUsn(String usn) {
         if (usn == null || usn.trim().isEmpty()) {
-            throw new IllegalArgumentException("The USN cannot be empty.");
+            throw new IllegalArgumentException("❌ USN cannot be empty.");
         }
-        this.usn = usn;
+
+        // Optional: Normalize & validate format (e.g., alphanumeric)
+        String normalized = usn.trim().toUpperCase();
+        if (!normalized.matches("[A-Z0-9]+")) {
+            throw new IllegalArgumentException("❌ USN must contain only letters and digits.");
+        }
+
+        this.usn = normalized;
     }
 
     public String getName() {
@@ -34,12 +37,11 @@ public class Student {
 
     public void setName(String name) {
         if (name == null || name.trim().isEmpty()) {
-            throw new IllegalArgumentException("The name cannot be empty.");
+            throw new IllegalArgumentException("❌ Student name cannot be empty.");
         }
-        this.name = name;
-    }
 
-    // toString
+        this.name = name.trim();
+    }
 
     @Override
     public String toString() {

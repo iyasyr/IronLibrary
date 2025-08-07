@@ -21,6 +21,13 @@ public class Book {
     }
 
     public void setIsbn(String isbn) {
+        if (isbn == null || isbn.trim().isEmpty()) {
+            throw new IllegalArgumentException("ISBN cannot be null or empty");
+        }
+        String cleanIsbn = isbn.replaceAll("-", "").trim();
+        if (!cleanIsbn.matches("\\d{10}|\\d{13}")) {
+            throw new IllegalArgumentException("ISBN must be 10 or 13 digits (dashes optional)");
+        }
         this.isbn = isbn;
     }
 
@@ -29,6 +36,9 @@ public class Book {
     }
 
     public void setTitle(String title) {
+        if (title == null || title.trim().isEmpty()) {
+            throw new IllegalArgumentException("Title cannot be null or empty");
+        }
         this.title = title;
     }
 
@@ -37,6 +47,9 @@ public class Book {
     }
 
     public void setCategory(String category) {
+        if (category == null || category.trim().isEmpty()) {
+            throw new IllegalArgumentException("Category cannot be null or empty");
+        }
         this.category = category;
     }
 

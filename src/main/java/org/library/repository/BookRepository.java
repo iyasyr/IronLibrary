@@ -1,6 +1,7 @@
 package org.library.repository;
 
 import org.library.model.Book;
+import org.library.util.IsbnUtil;
 
 import java.io.*;
 import java.util.*;
@@ -10,9 +11,25 @@ public class BookRepository {
 
     private static final String FILE_PATH = "books.csv";
 
+    private void checkIsbnUniqueness(String isbn) {
+        String normalized = IsbnUtil.normalize(isbn);
+        boolean exists = findAll().stream()
+                .map(book -> IsbnUtil.normalize(book.getIsbn()))
+                .anyMatch(existingIsbn -> existingIsbn.equalsIgnoreCase(normalized));
+
+        if (exists) {
+            throw new IllegalArgumentException("ISBN already exists: " + isbn);
+        }
+    }
+
+
     // Save a book (append mode)
     public void save(Book book) {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_PATH, true))) {
+            IsbnUtil.validate(book.getIsbn());              // Check format
+            checkIsbnUniqueness(book.getIsbn());            // Prevent duplicates
+
+            book.setIsbn(IsbnUtil.normalize(book.getIsbn())); // Normalize before saving
             writer.write(toCsvLine(book));
             writer.newLine();
         } catch (IOException e) {

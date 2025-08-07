@@ -12,8 +12,17 @@ public class AuthorRepository {
     private static int nextId = 1;
 
     // Save a new author
-    public void save(Author author) {
-        author.setAuthorId(nextId++);
+    public void save(Author author, Map<String, Book> bookMap) {
+        // Load all existing authors to check for duplicate email
+        List<Author> existingAuthors = findAll(bookMap);
+        boolean emailExists = existingAuthors.stream()
+                .anyMatch(a -> a.getEmail().equalsIgnoreCase(author.getEmail()));
+
+        if (emailExists) {
+            throw new IllegalArgumentException("An author with this email already exists: " + author.getEmail());
+        }
+
+        author.setAuthorId(nextId++); // autoincremented value
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_PATH, true))) {
             writer.write(String.format("%d,%s,%s,%s",
                     author.getAuthorId(),

@@ -1,23 +1,23 @@
 package org.library.model;
 
+import java.util.regex.Pattern;
+
 public class Author {
-    private static int idCounter = 1; // Auto-increment logic
+    private static int idCounter = 1;
 
     private int authorId;
     private String name;
     private String email;
     private Book authorBook;
 
-    // No-args constructor
-    public Author() {
-    }
+    private static final Pattern EMAIL_REGEX = Pattern.compile("^[\\w-.]+@[\\w-]+\\.[a-zA-Z]{2,}$");
 
-    // All-args constructor
+    // All-args constructor with validation
     public Author(String name, String email, Book authorBook) {
         this.authorId = idCounter++;
-        this.name = name;
-        this.email = email;
-        this.authorBook = authorBook;
+        setName(name);
+        setEmail(email);
+        setAuthorBook(authorBook);
     }
 
     // Getters
@@ -37,20 +37,32 @@ public class Author {
         return authorBook;
     }
 
-    // Setters
+    // Setters with validation
     public void setAuthorId(int authorId) {
         this.authorId = authorId;
     }
 
     public void setName(String name) {
+        if (name == null || name.trim().isEmpty()) {
+            throw new IllegalArgumentException("Author name cannot be null or empty.");
+        }
         this.name = name;
     }
 
     public void setEmail(String email) {
+        if (email == null || email.trim().isEmpty()) {
+            throw new IllegalArgumentException("Email cannot be null or empty.");
+        }
+        if (!EMAIL_REGEX.matcher(email).matches()) {
+            throw new IllegalArgumentException("Invalid email format.");
+        }
         this.email = email;
     }
 
     public void setAuthorBook(Book authorBook) {
+        if (authorBook == null) {
+            throw new IllegalArgumentException("Author must be associated with a book.");
+        }
         this.authorBook = authorBook;
     }
 
