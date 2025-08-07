@@ -7,10 +7,6 @@ public class Book {
     private String category;
     private int quantity;
 
-    // No-args constructor
-    public Book() {
-    }
-
     // All-args constructor
     public Book(String isbn, String title, String category, int quantity) {
         this.isbn = isbn;
@@ -20,7 +16,6 @@ public class Book {
     }
 
     // Getters y Setters
-
     public String getIsbn() {
         return isbn;
     }
@@ -66,4 +61,3 @@ public class Book {
                 '}';
     }
 }
-
