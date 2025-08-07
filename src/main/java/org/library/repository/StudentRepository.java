@@ -5,14 +5,27 @@ import org.library.model.Student;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public class StudentRepository {
 
-    private static final String FILE_PATH = "students.csv";
+    private static final String DEFAULT_FILE_PATH = "students.csv";
+    private final String filePath;
+
+    // Default constructor uses the production file
+    public StudentRepository() {
+        this.filePath = DEFAULT_FILE_PATH;
+    }
+
+    // This one is for tests or custom file injection
+    public StudentRepository(String filePath) {
+        this.filePath = filePath;
+    }
 
     // Guardar un estudiante (append mode)
     public void save(Student student) {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_PATH, true))) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath, true))) {
             writer.write(toCsvLine(student));
             writer.newLine();
         } catch (IOException e) {
@@ -23,7 +36,7 @@ public class StudentRepository {
     // Obtener todos los estudiantes
     public List<Student> findAll() {
         List<Student> students = new ArrayList<>();
-        try (BufferedReader reader = new BufferedReader(new FileReader(FILE_PATH))) {
+        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
             String line;
             while ((line = reader.readLine()) != null) {
                 students.add(fromCsvLine(line));
@@ -59,6 +72,15 @@ public class StudentRepository {
                 unescape(parts[0]),
                 unescape(parts[1])
         );
+    }
+
+    public Map<String, Student> toMap() {
+        return findAll().stream()
+                .collect(Collectors.toMap(
+                        Student::getUsn,
+                        s -> s,
+                        (existing, replacement) -> existing // handle duplicates if any
+                ));
     }
 
     // Escapar comas

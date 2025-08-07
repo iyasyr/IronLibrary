@@ -3,6 +3,7 @@ package org.library;
 import org.library.Service.LibraryService;
 import org.library.model.Author;
 import org.library.model.Book;
+import org.library.model.Issue;
 
 import java.util.List;
 import java.util.Scanner;
@@ -82,6 +83,29 @@ public class Main {
                         System.out.println("📭 No books or authors found.");
                     } else {
                         authors.forEach(System.out::println);
+                    }
+                }
+
+                case 6 -> {
+                    System.out.print("Student USN: ");
+                    String usn = scanner.nextLine();
+                    System.out.print("Student Name: ");
+                    String name = scanner.nextLine();
+                    System.out.print("Book ISBN to issue: ");
+                    String isbn = scanner.nextLine();
+
+                    libraryService.issueBook(usn, name, isbn);
+                    System.out.println("✅ Book issued successfully!");
+                }
+
+                case 7 -> {
+                    System.out.print("Enter USN: ");
+                    String usn = scanner.nextLine();
+                    List<Issue> issues = libraryService.listBooksByUsn(usn);
+                    if (issues.isEmpty()) {
+                        System.out.println("📭 No books issued to this student.");
+                    } else {
+                        issues.forEach(System.out::println);
                     }
                 }
 
