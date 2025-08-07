@@ -1,5 +1,8 @@
 package org.library.model;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
+
 public class Issue {
 
     private int issueId;
@@ -8,25 +11,25 @@ public class Issue {
     private Student issueStudent;
     private Book issueBook;
 
-    // Constructor vacío
-    public Issue() {
-    }
-
-    // Constructor con campos (sin ID)
     public Issue(String issueDate, String returnDate, Student issueStudent, Book issueBook) {
-        this.issueDate = issueDate;
-        this.returnDate = returnDate;
-        this.issueStudent = issueStudent;
-        this.issueBook = issueBook;
+        setIssueDate(issueDate);
+        setReturnDate(returnDate);
+        setIssueStudent(issueStudent);
+        setIssueBook(issueBook);
     }
 
-    // Getters y Setters
+    public Issue() {
+
+    }
 
     public int getIssueId() {
         return issueId;
     }
 
     public void setIssueId(int issueId) {
+        if (issueId < 0) {
+            throw new IllegalArgumentException("❌ Issue ID must be positive.");
+        }
         this.issueId = issueId;
     }
 
@@ -35,7 +38,15 @@ public class Issue {
     }
 
     public void setIssueDate(String issueDate) {
-        this.issueDate = issueDate;
+        if (issueDate == null || issueDate.trim().isEmpty()) {
+            throw new IllegalArgumentException("❌ Issue date cannot be empty.");
+        }
+        try {
+            LocalDate.parse(issueDate); // Validates date format (ISO_LOCAL_DATE: yyyy-MM-dd)
+        } catch (DateTimeParseException e) {
+            throw new IllegalArgumentException("❌ Invalid issue date format. Expected format: yyyy-MM-dd");
+        }
+        this.issueDate = issueDate.trim();
     }
 
     public String getReturnDate() {
@@ -43,7 +54,15 @@ public class Issue {
     }
 
     public void setReturnDate(String returnDate) {
-        this.returnDate = returnDate;
+        if (returnDate == null || returnDate.trim().isEmpty()) {
+            throw new IllegalArgumentException("❌ Return date cannot be empty.");
+        }
+        try {
+            LocalDate.parse(returnDate);
+        } catch (DateTimeParseException e) {
+            throw new IllegalArgumentException("❌ Invalid return date format. Expected format: yyyy-MM-dd");
+        }
+        this.returnDate = returnDate.trim();
     }
 
     public Student getIssueStudent() {
@@ -51,6 +70,13 @@ public class Issue {
     }
 
     public void setIssueStudent(Student issueStudent) {
+        if (issueStudent == null) {
+            throw new IllegalArgumentException("❌ Student cannot be null.");
+        }
+        // ensure valid fields
+        issueStudent.setUsn(issueStudent.getUsn());
+        issueStudent.setName(issueStudent.getName());
+
         this.issueStudent = issueStudent;
     }
 
@@ -59,10 +85,11 @@ public class Issue {
     }
 
     public void setIssueBook(Book issueBook) {
+        if (issueBook == null) {
+            throw new IllegalArgumentException("❌ Book cannot be null.");
+        }
         this.issueBook = issueBook;
     }
-
-    // toString
 
     @Override
     public String toString() {

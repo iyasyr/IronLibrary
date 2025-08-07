@@ -18,19 +18,19 @@ class StudentTest {
     void testSetInvalidUsn() {
         Student student = new Student();
         Exception ex1 = assertThrows(IllegalArgumentException.class, () -> student.setUsn(null));
-        assertEquals("The USN cannot be empty.", ex1.getMessage());
+        assertEquals("❌ USN cannot be empty.", ex1.getMessage());
 
         Exception ex2 = assertThrows(IllegalArgumentException.class, () -> student.setUsn("   "));
-        assertEquals("The USN cannot be empty.", ex2.getMessage());
+        assertEquals("❌ USN cannot be empty.", ex2.getMessage());
     }
 
     @Test
     void testSetInvalidName() {
         Student student = new Student();
         Exception ex1 = assertThrows(IllegalArgumentException.class, () -> student.setName(null));
-        assertEquals("The name cannot be empty.", ex1.getMessage());
+        assertEquals("❌ Student name cannot be empty.", ex1.getMessage());
 
         Exception ex2 = assertThrows(IllegalArgumentException.class, () -> student.setName("  "));
-        assertEquals("The name cannot be empty.", ex2.getMessage());
+        assertEquals("❌ Student name cannot be empty.", ex2.getMessage());
     }
 }
